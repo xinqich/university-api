@@ -7,10 +7,7 @@ from .models import University, Course, UniversityCourse
 from .serializers import UniversitySerializer, CourseSerializer, UniversityCourseReadSerializer, UniversityCourseWriteSerializer
 from rest_framework.filters import SearchFilter, OrderingFilter
 
-class BaseNoUpdateViewSet(ModelViewSet):
-    http_method_names = ['get', 'post', 'delete']
-
-class UniversityViewSet(BaseNoUpdateViewSet):
+class UniversityViewSet(ModelViewSet):
     queryset = University.objects.all().distinct()
     serializer_class = UniversitySerializer
 
@@ -32,11 +29,11 @@ class UniversityViewSet(BaseNoUpdateViewSet):
         return Response(data)
 
 
-class CourseViewSet(BaseNoUpdateViewSet):
+class CourseViewSet(ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
 
-class UniversityCourseViewSet(BaseNoUpdateViewSet):
+class UniversityCourseViewSet(ModelViewSet):
     queryset = UniversityCourse.objects.order_by('id')
     filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
     search_fields = ['university__name', 'course__title']
@@ -47,6 +44,6 @@ class UniversityCourseViewSet(BaseNoUpdateViewSet):
     }
 
     def get_serializer_class(self):
-        if self.action == 'create':
+        if self.action in ['create', 'update', 'partial_update']:
             return UniversityCourseWriteSerializer
         return UniversityCourseReadSerializer
